@@ -1,73 +1,81 @@
 package com.example.myapplicationnew;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.myapplicationnew.adapter.CustomRecyclerAdapter;
+import com.example.myapplicationnew.adapter.ListofItems;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTextViewResult;
-    private RequestQueue mQueue;
+    RecyclerView recyclerView;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager layoutManager;
+
+    List<ListofItems> listofItemsList;
+    RequestQueue rq;
+
+    String request_url = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextViewResult = findViewById(R.id.text_view_result);
-        Button buttonParse = findViewById(R.id.button_parse);
+        rq = Volley.newRequestQueue(this);
 
-        mQueue = Volley.newRequestQueue(this);
+        recyclerView = (RecyclerView) findViewById(R.id.recycleViewContainer);
+        recyclerView.hasFixedSize();
 
-        buttonParse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                jsonParse();
-            }
-        });
+        layoutManager = new LinearLayoutManager(this);
+
+        recyclerView.setLayoutManager(layoutManager);
+
+        listofItemsList = new ArrayList<>();
+
+        sendRequest();
+
+
     }
 
+    public void sendRequest(){
 
-    private void jsonParse(){
-        String url = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
-
-// I don't know what my problem is here, i've declared everything and nothing is showing up
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, request_url, null, new Response.Listener<JSONArray>() {
             @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONArray jsonArray = response.getJSONArray("");
-                    for (int i = 0; i < jsonArray.length(); i++){
-                        JSONObject list = jsonArray.getJSONObject(i);
+            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    ListofItems listofItems = new ListofItems();
 
-                        int id = list.getInt("id");
-                        int listId = list.getInt("listId");
-                        String name = list.getString("name");
+                    try {
+                        JSONObject jsonObject = response.getJSONObject(i);
 
-                        mTextViewResult.append(String.valueOf(id) + ", " + String.valueOf(listId) + ", " + name + "\n\n");
+                        listofItems.setId(jsonObject.getInt("id"));
+                        listofItems.setListId(jsonObject.getInt("listId"));
+                        listofItems.setName(jsonObject.getString("name"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    listofItemsList.add(listofItems);
                 }
+                mAdapter = new CustomRecyclerAdapter(MainActivity.this, listofItemsList);
+                recyclerView.setAdapter(mAdapter);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -76,6 +84,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mQueue.add(request);
+        rq.add(jsonArrayRequest);
     }
 }
