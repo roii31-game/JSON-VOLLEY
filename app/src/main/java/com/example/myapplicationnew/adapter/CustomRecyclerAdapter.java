@@ -31,6 +31,8 @@ public class CustomRecyclerAdapter extends RecyclerView.Adapter<CustomRecyclerAd
         return viewHolder;
     }
 
+
+    //Displaying all the objects
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.itemView.setTag(listofItems.get(position));

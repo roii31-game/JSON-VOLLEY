@@ -8,11 +8,6 @@
         android:layout_height="wrap_content"
         android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/userImg"
-            android:layout_width="60dp"
-            android:layout_height="60dp" />
-
         <TextView
             android:id="@+id/id"
             android:text="User Name"

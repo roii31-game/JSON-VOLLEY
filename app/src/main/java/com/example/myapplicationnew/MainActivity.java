@@ -1,10 +1,14 @@
 package com.example.myapplicationnew;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,7 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     RecyclerView.Adapter mAdapter;
     RecyclerView.LayoutManager layoutManager;
+    Menu menu;
 
     List<ListofItems> listofItemsList;
     RequestQueue rq;
@@ -55,6 +60,48 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.sort_menu,menu);
+
+        return true;
+    }
+
+
+    //Click Event - Sorting
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.list_asc:
+                Collections.sort(listofItemsList, ListofItems.ListofItemsAZComparator);
+//                Toast.makeText(MainActivity.this, "Sort A to Z", Toast.LENGTH_SHORT).show();
+                mAdapter.notifyDataSetChanged();
+                return true;
+            case R.id.list_desc:
+                Collections.sort(listofItemsList, ListofItems.ListofItemsZAComparator);
+//                Toast.makeText(MainActivity.this, "Sort Z to A", Toast.LENGTH_SHORT).show();
+                mAdapter.notifyDataSetChanged();
+                return true;
+            case R.id.menu_numAscending:
+                Collections.sort(listofItemsList, ListofItems.ListofItemsNumberAscendingComparator);
+//                Toast.makeText(MainActivity.this, "Date Asceding", Toast.LENGTH_SHORT).show();
+                mAdapter.notifyDataSetChanged();
+                return true;
+            case R.id.menu_numDescending:
+                Collections.sort(listofItemsList, ListofItems.ListofItemsNumberDescendingComparator);
+//                Toast.makeText(MainActivity.this, "Date Descending", Toast.LENGTH_SHORT).show();
+                mAdapter.notifyDataSetChanged();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    //Getting the JSON Array and displaying all the objects that are inside
     public void sendRequest(){
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, request_url, null, new Response.Listener<JSONArray>() {
